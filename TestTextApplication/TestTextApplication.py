@@ -7,7 +7,7 @@ from os.path import splitext
 from string import punctuation
 import nltk
 from RAKE import *
-from SemanticSimilarity import similarity
+from SemanticSimilarity import *
 
 
 filename = None
@@ -72,8 +72,10 @@ def openFile():
             print("Oops! not a supported file type.")
 
 def TestRake():
-    if text.index(END) != 0:
+    if text.index(END) != 0: # check if we have text to check
         RAKE.test(text.get(0.0,END))
+
+
 
 
 mGui = Tk() #make an instance of TK

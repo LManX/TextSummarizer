@@ -2,8 +2,9 @@
 import operator
 import nltk
 import string
+from SemanticSimilarity import *
 
-#Taken from http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html
+#Based on http://sujitpal.blogspot.com/2013/03/implementing-rake-algorithm-with-nltk.html
 
 #Functions
 #punct will be 1 char and listed
@@ -23,10 +24,11 @@ class RAKE(object):
     def __init__(self):
         self.stopwords = set(nltk.corpus.stopwords.words())
         self.top_fraction = 1 # consider top third candidate keywords by score
+        self.sentences = []
 
     def extract(self, text, incl_scores=False):
-        sentences = nltk.sent_tokenize(text) #tokenize by sentence
-        phrase_list = self._generate_candidate_keywords(sentences) #grab candidates by phrase
+        self.sentences = nltk.sent_tokenize(text) #tokenize by sentence
+        phrase_list = self._generate_candidate_keywords(self.sentences) #grab candidates by phrase
         word_scores = self._calculate_word_scores(phrase_list) #score words
         phrase_scores = self._calculate_phrase_scores(phrase_list, word_scores) #score phrases
         sorted_phrase_scores = sorted(phrase_scores.items(), key=operator.itemgetter(1), reverse=True) #sort scored phrases in decending order
@@ -75,16 +77,54 @@ class RAKE(object):
           phrase_scores[" ".join(phrase)] = phrase_score
         return phrase_scores
 
-    #score semantic similarities between keyphrases, high scoring phrases should describe topic.
+    def search_text(self, query): #look through text, and return the sentence in which it is found.
+        query_words = nltk.word_tokenize(query)
+        for sentence in self.sentences: #check each sentence for the phrase
+            neededWords = len(query_words)
+            sentence_words = nltk.word_tokenize(sentence.lower())
+            for word in query_words:
+                if word in sentence_words:
+                    neededWords -= 1
+                else:
+                    break
+                if neededWords == 0:
+                    return sentence  
+           
+        else:
+            print("Could not find " + query + " in text")
+            return None     
 
-    #score sentences by occurance of topic-focused keyphrases, sort, extract highest scoring third of sentences for the summary.
+    def get_key_sentences(self, keyphrases, sentences):
+        length = int(len(keyphrases) / 3)
+        top_phrases = []
+        for index, phrase in enumerate(keyphrases):
+            top_phrases.append(phrase[0])
+            if index == length + 1:
+                break
 
-    #Would be nice if could detect "Who" "What" "When" "Where" "How" of a news story. Perhaps a supervised template approach would be easiest?
+        key_Sentences = []
+        for phrase in top_phrases:
+            sent = self.search_text(phrase)
+            if sent != None and sent not in key_Sentences :
+                key_Sentences.append(sent)
 
+        return key_Sentences
+
+    def clean_Text(self, sentences):
+        cleanedText = []
+        for sentence in sentences:
+           cleanedText.append(sentence.replace('\n',''))
+        return cleanedText
+                
 
     def test(text):
-      rakeObj = RAKE()
-      #keywords = rakeObj.extract(str(text.encode('ascii','ignore').decode('unicode_escape')), incl_scores=True)
-      keywords = rakeObj.extract(text, incl_scores=True)
-      print (keywords)
+        rakeObj = RAKE()
+        keywords = rakeObj.extract(text, incl_scores=True)
+        print (keywords)
+        print(rakeObj.clean_Text(rakeObj.get_key_sentences(keywords, rakeObj.sentences)))
+
+
+    
+      
+      
       

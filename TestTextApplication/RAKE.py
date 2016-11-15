@@ -23,11 +23,13 @@ class RAKE(object):
 
     def __init__(self):
         self.stopwords = set(nltk.corpus.stopwords.words())
-        self.top_fraction = 1 # consider top third candidate keywords by score
+        self.top_fraction = 3 # consider top third candidate keywords by score
         self.sentences = []
+        self.items = []
 
     def extract(self, text, incl_scores=False):
         self.sentences = nltk.sent_tokenize(text) #tokenize by sentence
+        self.items = nltk.word_tokenize(text) 
         phrase_list = self._generate_candidate_keywords(self.sentences) #grab candidates by phrase
         word_scores = self._calculate_word_scores(phrase_list) #score words
         phrase_scores = self._calculate_phrase_scores(phrase_list, word_scores) #score phrases
@@ -116,12 +118,25 @@ class RAKE(object):
            cleanedText.append(sentence.replace('\n',''))
         return cleanedText
                 
+    def tally_Words(self, sentences):
+        tally = 0
+        for sentence in sentences:
+            sent = nltk.word_tokenize(sentence)
+            tally += len(sent)
+
+        return tally
 
     def test(text):
         rakeObj = RAKE()
         keywords = rakeObj.extract(text, incl_scores=True)
+        clean_text = rakeObj.clean_Text(rakeObj.get_key_sentences(keywords, rakeObj.sentences))
+        clean_tally = rakeObj.tally_Words(clean_text)
         print (keywords)
-        print(rakeObj.clean_Text(rakeObj.get_key_sentences(keywords, rakeObj.sentences)))
+        print ("")
+        print (clean_text)
+        print ("")
+        print ("Cut " + str(len(rakeObj.items) - clean_tally) + " words.")
+        print ("Summary " + str((clean_tally / len(rakeObj.items)) * 100) + "% of the length of the source.")
 
 
     

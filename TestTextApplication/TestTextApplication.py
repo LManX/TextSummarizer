@@ -75,16 +75,38 @@ def TestRake():
     if text.index(END) != 0: # check if we have text to check
         RAKE.test(text.get(0.0,END))
 
+def copy(event=None):
+    text.clipboard_clear()
+    t = text.get("sel.first", "sel.last")
+    text.clipboard_append(t)
+    
+def cut(event):
+    copy()
+    text.delete("sel.first", "sel.last")
 
+def paste(event):
+    t = text.selection_get(selection='CLIPBOARD')
+    #try:
+    t = t.encode("latin-1", "replace")
+    #except:     
+    text.insert('insert', t)
+    return "break"
 
 
 mGui = Tk() #make an instance of TK
 mGui.title("My Python Text Editor/Analyzer")
-mGui.minsize(width=400, height = 400)
-mGui.maxsize(width=400, height = 400)
 
 text = Text(mGui)
-text.pack()
+text.bind('<Control-c>', copy)
+text.bind('<Control-x>', cut)
+text.bind('<Control-v>', paste)
+
+scroll = Scrollbar(mGui)
+scroll.pack(side=RIGHT, fill=Y)
+text.pack(side=LEFT, fill=BOTH, expand=1)
+
+scroll.config(command=text.yview)
+text.config(yscrollcommand=scroll.set)
 
 menubar = Menu(mGui)
 mGui.config(menu=menubar)
@@ -96,7 +118,7 @@ filemenu.add_command(label="Save", command=saveFile)
 filemenu.add_command(label="Save As...", command=saveAs)
 filemenu.add_command(label="Open", command=openFile)
 filemenu.add_separator()
-filemenu.add_command(label="Test RAKE", command=TestRake)
+filemenu.add_command(label="Run RAKE", command=TestRake)
 filemenu.add_separator()
 filemenu.add_command(label="Quit", command=mGui.quit)
 

@@ -16,6 +16,8 @@ WORD_NAMESPACE = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}
 PARA = WORD_NAMESPACE + 'p'
 TEXT = WORD_NAMESPACE + 't'
 
+endmarks = [".","?", "!"]
+
 #method to wipe 
 def newFile():
     global filename
@@ -73,7 +75,12 @@ def openFile():
 
 def TestRake():
     if text.index(END) != 0: # check if we have text to check
-        RAKE.test(text.get(0.0,END))
+        clean = RAKE.test(text.get(0.0,END))
+        newFile()
+        clean = "".join(clean)
+        for e in endmarks:
+            clean = clean.replace(e, e + " ")
+        text.insert(0.0, clean)
 
 def copy(event=None):
     text.clipboard_clear()

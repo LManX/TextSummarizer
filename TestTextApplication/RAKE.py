@@ -137,6 +137,7 @@ class RAKE(object):
         print ("")
         print ("Cut " + str(len(rakeObj.items) - clean_tally) + " words.")
         print ("Summary " + str((clean_tally / len(rakeObj.items)) * 100) + "% of the length of the source.")
+        return clean_text
 
 
     

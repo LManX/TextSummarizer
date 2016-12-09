@@ -14,7 +14,7 @@ Features:
 * Uses Tkinter text widget for input.
 * Opens .txt and extracts text from body of .docx documents
 * Saves text widget contents as .txt
-* Uses Rapid Automatic Keyword Extraction (RAKE) to score and extract keyphrases from the text, then extracts the sentences where those * keyphrases are found to provide a summary.
+* Uses Rapid Automatic Keyword Extraction (RAKE) to score and extract keyphrases from the text, then extracts the sentences where those keyphrases are found to provide a summary.
 * Supports Copy/Cut/Paste events.
 
 *Attempts to encode all text to 'latin-1' to prevent unicodeExceptions.*
